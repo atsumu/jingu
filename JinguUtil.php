@@ -16,10 +16,9 @@ abstract class JinguUtil {
         if ($content === false) {
             throw new Exception();
         }
-        $md5 = md5($content);
-        $cachePath = $cachePathPrefix . '.' . $md5;
+        $cachePath = $cachePathPrefix . '.' . md5($content);
         if (file_exists($cachePath)) {
-            return;
+            return $cachePath;
         }
         $compiledCode = $this->parser->parseString($content);
         if (file_put_contents($cachePath, $compiledCode, LOCK_EX) === false) {
