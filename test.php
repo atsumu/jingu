@@ -239,6 +239,11 @@ $assert->equal($r, $v === '<? }, "foo" => function ($a, $b) { ?><?
 ?>');
 $assert->equal($r, isset($e) === false);
 
+// operator_include_unit
+$r = list($o, $v, $e) = refcall('operator_include_unit', 'include "foo" "bar" [ $a, $b ]');
+$assert->equal($r, $v === '<? $this->call("foo", "bar", [ $a, $b ]) ?>');
+$assert->equal($r, isset($e) === false);
+
 // operator_foreach_name
 $r = list($o, $v, $e) = refcall('operator_foreach_name', 'foreach');
 $assert->equal($r, $v === 'foreach');
@@ -302,6 +307,7 @@ $r = (new JinguParser())->parseString('foreach ($a as $b)
   else
 
    img id="contents"
+include "a" "b" []
 block "foo" ($a, $b)
  | text
 ');
@@ -324,7 +330,8 @@ $assert->equal($r, $v === '<? return [ "" => function () { ?><? foreach ($a as $
 ?><? } else { ?><?
 ?><?
 ?><img id="contents"><?
-?><? } ?><? } ?><? } ?><? }, "foo" => function ($a, $b) { ?><?
+?><? } ?><? } ?><? } ?><? $this->call("a", "b", []) ?><?
+?><? }, "foo" => function ($a, $b) { ?><?
 ?>text<?
 ?><? } ] ?>');
 $assert->equal($r, isset($e) === false);
@@ -340,7 +347,15 @@ class TestJinguUtil extends JinguUtil {
     }
 }
 
-if (file_put_contents('test.jingu', 'div id="contents"', LOCK_EX) === false) {
+$testContent = 'div id="contents"
+ include "test.part" "" []';
+$testPartContent = 'div id="part"';
+
+if (file_put_contents('test.jingu', $testContent, LOCK_EX) === false) {
+    throw new Exception();
+}
+
+if (file_put_contents('test.part.jingu', $testPartContent, LOCK_EX) === false) {
     throw new Exception();
 }
 
@@ -348,7 +363,7 @@ $jinguUtil = new TestJinguUtil(new JinguParser());
 ob_start();
 $jinguUtil->call('test', '', []);
 $output = ob_get_clean();
-$assert->equal($output, $output === '<div id="contents"></div>');
+$assert->equal($output, $output === '<div id="contents"><div id="part"></div></div>');
 
 /* Total */
 $assert->total();

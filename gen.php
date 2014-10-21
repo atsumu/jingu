@@ -716,6 +716,14 @@ final class JinguGen {
             $v = \'<? }, \' . $v[2] . \' => function \' . $v[4] . \' { ?>\' . $v[5] . $v[6];
         ' ]);
 
+        $JinguGen->name('operator_include_separator')->byteTable(" ");
+        $JinguGen->name('operator_include_name')->stringTable('syntaxname_string', [
+            'include',
+        ]);
+        $JinguGen->name('operator_include_unit')->seq([ 'operator_include_name', 'syntaxname_separator', 'str_quoted', 'syntaxname_separator', 'str_quoted', 'operator_include_separator', 'php_bracket_wrap', 'syntax_end_token_to_strip_must' ])->trans([ '
+            $v = \'<? $this->call(\' . $v[2] . \', \' . $v[4] . \', \' . $v[6] . \') ?>\' . $v[7];
+        ' ]);
+
         $JinguGen->name('operator_foreach_name')->stringTable('syntaxname_string', [
             'foreach',
         ]);
@@ -751,7 +759,7 @@ final class JinguGen {
             $v = implode("", $v) . "<? } ?>";
         ' ]);
 
-        $JinguGen->name('syntax_select')->select([ 'htmltag_single', 'htmltag_pair', 'operator_textout_unit', 'operator_phpout_unit', 'operator_comment_unit', 'operator_block_unit', 'operator_foreach_unit', 'operator_ifelse_unit' ]);
+        $JinguGen->name('syntax_select')->select([ 'htmltag_single', 'htmltag_pair', 'operator_textout_unit', 'operator_phpout_unit', 'operator_comment_unit', 'operator_block_unit', 'operator_include_unit', 'operator_foreach_unit', 'operator_ifelse_unit' ]);
         $JinguGen->name('syntax_top_unit')->seq([ 'blank_line_repeat_to_strip', 'syntax_select', 'blank_line_repeat_to_strip' ])->trans([ '
             $v = implode("", $v);
         ' ]);
