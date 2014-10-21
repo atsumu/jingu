@@ -239,13 +239,13 @@ $assert->equal($r, $v === '<? }, "foo" => function ($a, $b) { ?><?
 ?>');
 $assert->equal($r, isset($e) === false);
 
-// operator_braced_name
-$r = list($o, $v, $e) = refcall('operator_braced_name', 'foreach');
+// operator_foreach_name
+$r = list($o, $v, $e) = refcall('operator_foreach_name', 'foreach');
 $assert->equal($r, $v === 'foreach');
 $assert->equal($r, isset($e) === false);
 
-// operator_braced_unit
-$r = list($o, $v, $e) = refcall('operator_braced_unit', 'foreach ($a as $b)
+// operator_foreach_unit
+$r = list($o, $v, $e) = refcall('operator_foreach_unit', 'foreach ($a as $b)
 
  foreach ($b as $c)
   img id="contents"
