@@ -372,7 +372,7 @@ final class JinguGen {
     private function must() {
         $ngil = $this->uFlatIL([ '
             /* must */
-            throw new JinguException(self::dumpError($t, $e));
+            throw new JinguParseException($t, $e);
         ' ]);
         $this->parsers[$this->currentName] = $this->uMergeIL($this->parsers[$this->currentName], '#OK', $ngil);
         return $this;
@@ -778,42 +778,10 @@ final class JinguGen {
         $code = '';
         $code .= '<?php'."\n";
         $code .= ''."\n";
-        $code .= 'class JinguException extends Exception {'."\n";
-        $code .= '}'."\n";
+        $code .= 'require_once "JinguParseException.php";'."\n";
         $code .= ''."\n";
         $code .= 'class JinguParser {'."\n";
         $code .= '    private $indentLevel = 0;'."\n";
-        $code .= ''."\n";
-        $code .= '    private function dumpError($t, $e, $level = 0) {'."\n";
-        $code .= '        $o = $e["offset"];'."\n";
-        $code .= '        $pre = substr($t, 0, $o);'."\n";
-        $code .= '        $start = strrpos($pre, "\n");'."\n";
-        $code .= '        $start = $start === false ? 0 : $start + 1;'."\n";
-        $code .= '        $end = strpos($t, "\n", $o);'."\n";
-        $code .= '        if ($end === false) {'."\n";
-        $code .= '            $end = strlen($t);'."\n";
-        $code .= '        }'."\n";
-        $code .= '        $line = count(explode("\n", $pre));'."\n";
-        $code .= '        $column = $o + 1 - $start;'."\n";
-        $code .= '        $pointer  = "";'."\n";
-        $code .= '        for ($i = $start; $i < $o; $i++) {'."\n";
-        $code .= '            $pointer .= str_repeat("-", mb_strwidth($t[$i], "UTF-8"));'."\n";
-        $code .= '        }'."\n";
-        $code .= '        $pointer .= "^";'."\n";
-        $code .= '        $linestring = str_replace("\t", " ", substr($t, $start, $end - $start));'."\n";
-        $code .= '        $linejson = var_export($linestring, true);'."\n";
-        $code .= '        $indent = str_repeat(" ", $level);'."\n";
-        $code .= '        $message = "";'."\n";
-        $code .= '        $message .= sprintf("%sParse error: syntax error on line %s, column %s: expected %s %s, but %s\n", $indent, $line, $column, $e["message"], json_encode($e["args"]), json_encode($t[$o]));'."\n";
-        $code .= '        $message .= sprintf("%s%s\n", $indent, $linestring);'."\n";
-        $code .= '        $message .= sprintf("%s%s\n", $indent, $pointer);'."\n";
-        $code .= '        if (isset($e["children"])) {'."\n";
-        $code .= '            foreach ($e["children"] as $ec) {'."\n";
-        $code .= '                $message .= self::dumpError($t, $ec, $level + 1);'."\n";
-        $code .= '            }'."\n";
-        $code .= '        }'."\n";
-        $code .= '        return $message;'."\n";
-        $code .= '    }'."\n";
         $code .= ''."\n";
         foreach ($JinguGen->parsers as $name => $il) {
             $il = $JinguGen->uMergeIL($il, $JinguGen->uReturn(), $JinguGen->uReturn());
@@ -841,15 +809,15 @@ final class JinguGen {
         $code .= '    public function parseString($t) {'."\n";
         $code .= '        try {'."\n";
         $code .= '            if (mb_check_encoding($t, "UTF-8") === false) {'."\n";
-        $code .= '                throw new JinguException("Text encoding must be UTF-8");'."\n";
+        $code .= '                throw new JinguParseException($t, null, "Text encoding must be UTF-8");'."\n";
         $code .= '            }'."\n";
         $code .= '            if (strpos($t, '.$JinguGen->uDump("\r").') !== false) {'."\n";
-        $code .= '                throw new JinguException("Text EOL code must be LF");'."\n";
+        $code .= '                throw new JinguParseException($t, null, "Text EOL code must be LF");'."\n";
         $code .= '            }'."\n";
         $code .= '            list($o, $v, $e) = $this->top($t, 0);'."\n";
         $code .= '            return [ "value" => $v, "error" => $e ];'."\n";
-        $code .= '        } catch (JinguException $ex) {'."\n";
-        $code .= '            return [ "value" => null, "error" => [ "message" => $ex->getMessage() ] ];'."\n";
+        $code .= '        } catch (JinguParseException $ex) {'."\n";
+        $code .= '            return [ "value" => null, "error" => [ "message" => $ex->errorMessage() ] ];'."\n";
         $code .= '        }'."\n";
         $code .= '    }'."\n";
         $code .= '}'."\n";

@@ -12,8 +12,8 @@ function refcall($name, $t) {
     $m->setAccessible(true);
     try {
         return $m->invoke(new JinguParser(), $t, 0);
-    } catch (JinguException $e) {
-        return [ null, null, [ "message" => $e->getMessage() ] ];
+    } catch (JinguParseException $e) {
+        return [ null, null, [ "message" => $e->errorMessage() ] ];
     }
 }
 
