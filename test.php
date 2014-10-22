@@ -336,6 +336,14 @@ $assert->equal($r, $v === '<? return [ "" => function () { ?><? foreach ($a as $
 ?><? } ] ?>');
 $assert->equal($r, isset($e) === false);
 
+// parseString sublevel block
+$r = (new JinguParser())->parseString('div
+ block "foo" ($a, $b)');
+$v = $r["value"];
+$e = $r["error"];
+$assert->equal($r, $v === null);
+$assert->equal($r, isset($e) === true);
+
 /* JinguUtil */
 
 class TestJinguUtil extends JinguUtil {

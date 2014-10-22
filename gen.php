@@ -500,7 +500,7 @@ final class JinguGen {
     private function indentCurrent() {
         $GSi = $this->uGensym('i');
         $cil = $this->uFlatIL([ '
-            /* indent */
+            /* indentCurrent */
             for ('.$GSi.' = 0; '.$GSi.' < $this->indentLevel && isset($t[$o + '.$GSi.']); '.$GSi.'++) {
                 if ($t[$o] !== " ") {
                     break;
@@ -512,6 +512,20 @@ final class JinguGen {
             } else {
                 '.$this->uNewR('$o + '.$GSi, '""').';
                 ', '#OK', '
+            }
+        ' ]);
+        $this->parsers[$this->currentName] = $this->uMergeIL($this->parsers[$this->currentName], $cil, '#NG');
+        return $this;
+    }
+
+    private function indentCheck($indentLevel) {
+        $cil = $this->uFlatIL([ '
+            /* indentCheck */
+            if ('.$this->uDump($indentLevel).' === $this->indentLevel) {
+                ', '#OK', '
+            } else {
+                '.$this->uNewE("indentCheck", [ $indentLevel, '$this->indentLevel' ], '$o', 'isset($e) ? $e : null').';
+                ', '#NG', '
             }
         ' ]);
         $this->parsers[$this->currentName] = $this->uMergeIL($this->parsers[$this->currentName], $cil, '#NG');
@@ -708,12 +722,13 @@ final class JinguGen {
             $v = "<? " . $v[0] . $v[1] . " ?>" . $v[2];
         ' ]);
 
+        $JinguGen->name('operator_block_indent_check')->indentCheck(0);
         $JinguGen->name('operator_block_separator')->byteTable(" ");
         $JinguGen->name('operator_block_name')->stringTable('syntaxname_string', [
             'block',
         ]);
-        $JinguGen->name('operator_block_unit')->seq([ 'operator_block_name', 'syntaxname_separator', 'str_quoted', 'operator_block_separator', 'php_paren_wrap', 'syntax_end_token_to_strip_must', 'syntax_child_repeat' ])->trans([ '
-            $v = \'<? }, \' . $v[2] . \' => function \' . $v[4] . \' { ?>\' . $v[5] . $v[6];
+        $JinguGen->name('operator_block_unit')->seq([ 'operator_block_indent_check', 'operator_block_name', 'syntaxname_separator', 'str_quoted', 'operator_block_separator', 'php_paren_wrap', 'syntax_end_token_to_strip_must', 'syntax_child_repeat' ])->trans([ '
+            $v = \'<? }, \' . $v[3] . \' => function \' . $v[5] . \' { ?>\' . $v[6] . $v[7];
         ' ]);
 
         $JinguGen->name('operator_include_separator')->byteTable(" ");
