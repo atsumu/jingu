@@ -26,12 +26,12 @@ $r = list($o, $v, $e) = refcall('end', 'a');
 $assert->equal($r, $v === null);
 $assert->equal($r, isset($e) === true);
 
-// end_must
-$r = list($o, $v, $e) = refcall('end_must', '');
+// end_need
+$r = list($o, $v, $e) = refcall('end_need', '');
 $assert->equal($r, $v === '');
 $assert->equal($r, $e === null);
 
-$r = list($o, $v, $e) = refcall('end_must', 'a');
+$r = list($o, $v, $e) = refcall('end_need', 'a');
 $assert->equal($r, $v === null);
 $assert->equal($r, isset($e) === true);
 
@@ -167,12 +167,12 @@ $r = list($o, $v, $e) = refcall('syntaxname_string', 'for');
 $assert->equal($r, $v === 'for');
 $assert->equal($r, isset($e) === false);
 
-// syntax_end_token_to_strip_must
-$r = list($o, $v, $e) = refcall('syntax_end_token_to_strip_must', "\n");
+// syntax_end_token_to_strip_need
+$r = list($o, $v, $e) = refcall('syntax_end_token_to_strip_need', "\n");
 $assert->equal($r, $v === "<?\n?>");
 $assert->equal($r, isset($e) === false);
 
-$r = list($o, $v, $e) = refcall('syntax_end_token_to_strip_must', '');
+$r = list($o, $v, $e) = refcall('syntax_end_token_to_strip_need', '');
 $assert->equal($r, $v === '');
 $assert->equal($r, isset($e) === false);
 

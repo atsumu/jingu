@@ -128,7 +128,7 @@ final class JinguGen {
                 'php_inoperator_repeat',
                 'attr_repeat',
                 'syntaxname_string',
-                'syntax_end_token_to_strip_must',
+                'syntax_end_token_to_strip_need',
                 'syntax_child_repeat',
                 'htmltag_single',
                 'htmltag_pair',
@@ -369,9 +369,9 @@ final class JinguGen {
         return $this;
     }
 
-    private function must() {
+    private function need() {
         $ngil = $this->uFlatIL([ '
-            /* must */
+            /* need */
             throw new JinguParseException($t, $e);
         ' ]);
         $this->parsers[$this->currentName] = $this->uMergeIL($this->parsers[$this->currentName], '#OK', $ngil);
@@ -575,7 +575,7 @@ final class JinguGen {
         $JinguGen = new JinguGen();
 
         $JinguGen->name('end')->end();
-        $JinguGen->name('end_must')->end()->must()->trans([ '
+        $JinguGen->name('end_need')->end()->need()->trans([ '
             $v = "";
         ' ]);
         $JinguGen->name('newline_to_strip')->s("\n")->trans([ '
@@ -596,11 +596,11 @@ final class JinguGen {
         $JinguGen->name('str_quoted')->phpString();
 
         $JinguGen->name('php_paren_open')->s("(");
-        $JinguGen->name('php_paren_close')->s(")")->must();
+        $JinguGen->name('php_paren_close')->s(")")->need();
         $JinguGen->name('php_brace_open')->s("{");
-        $JinguGen->name('php_brace_close')->s("}")->must();
+        $JinguGen->name('php_brace_close')->s("}")->need();
         $JinguGen->name('php_bracket_open')->s("[");
-        $JinguGen->name('php_bracket_close')->s("]")->must();
+        $JinguGen->name('php_bracket_close')->s("]")->need();
         $JinguGen->name('php_paren_wrap')->seq([ 'php_paren_open', 'php_inner_repeat', 'php_paren_close' ])->trans([ '
             $v = implode("", $v);
         ' ]);
@@ -664,7 +664,7 @@ final class JinguGen {
             $v = implode("", $v);
         ' ]);
 
-        $JinguGen->name('syntax_end_token_to_strip_must')->select([ 'newline_to_strip', 'end' ])->must();
+        $JinguGen->name('syntax_end_token_to_strip_need')->select([ 'newline_to_strip', 'end' ])->need();
 
         $JinguGen->name('htmltag_name_single')->stringTable('syntaxname_string', [
             'img',
@@ -686,10 +686,10 @@ final class JinguGen {
             $v = implode("", $v);
         ' ]);
 
-        $JinguGen->name('htmltag_single')->seq([ 'htmltag_name_single', 'attr_repeat', 'syntax_end_token_to_strip_must' ])->trans([ '
+        $JinguGen->name('htmltag_single')->seq([ 'htmltag_name_single', 'attr_repeat', 'syntax_end_token_to_strip_need' ])->trans([ '
             $v = "<" . $v[0] . $v[1] . ">" . $v[2];
         ' ]);
-        $JinguGen->name('htmltag_pair')->seq([ 'htmltag_name_pair', 'attr_repeat', 'syntax_end_token_to_strip_must', 'syntax_child_repeat' ])->trans([ '
+        $JinguGen->name('htmltag_pair')->seq([ 'htmltag_name_pair', 'attr_repeat', 'syntax_end_token_to_strip_need', 'syntax_child_repeat' ])->trans([ '
             $v = "<" . $v[0] . $v[1] . ">" . $v[2] . $v[3] . "</" . $v[0] . ">";
         ' ]);
 
@@ -700,14 +700,14 @@ final class JinguGen {
         $JinguGen->name('operator_textout_name')->stringTable('syntaxname_string', [
             '|',
         ]);
-        $JinguGen->name('operator_textout_unit')->seq([ 'operator_textout_name', 'syntaxname_separator', 'operator_textout_string', 'syntax_end_token_to_strip_must' ])->trans([ '
+        $JinguGen->name('operator_textout_unit')->seq([ 'operator_textout_name', 'syntaxname_separator', 'operator_textout_string', 'syntax_end_token_to_strip_need' ])->trans([ '
             $v = htmlspecialchars($v[2], ENT_QUOTES, "UTF-8") . $v[3];
         ' ]);
 
         $JinguGen->name('operator_phpout_name')->stringTable('syntaxname_string', [
             '=',
         ]);
-        $JinguGen->name('operator_phpout_unit')->seq([ 'operator_phpout_name', 'syntaxname_separator', 'php_inoperator_repeat', 'syntax_end_token_to_strip_must' ])->trans([ '
+        $JinguGen->name('operator_phpout_unit')->seq([ 'operator_phpout_name', 'syntaxname_separator', 'php_inoperator_repeat', 'syntax_end_token_to_strip_need' ])->trans([ '
             $v = \'<?= htmlspecialchars((\' . $v[2] . \'), ENT_QUOTES, "UTF-8") ?>\' . $v[3];
         ' ]);
 
@@ -718,7 +718,7 @@ final class JinguGen {
         $JinguGen->name('operator_comment_name')->stringTable('syntaxname_string', [
             '//',
         ]);
-        $JinguGen->name('operator_comment_unit')->seq([ 'operator_comment_name', 'operator_comment_string', 'syntax_end_token_to_strip_must' ])->trans([ '
+        $JinguGen->name('operator_comment_unit')->seq([ 'operator_comment_name', 'operator_comment_string', 'syntax_end_token_to_strip_need' ])->trans([ '
             $v = "<? " . $v[0] . $v[1] . " ?>" . $v[2];
         ' ]);
 
@@ -727,7 +727,7 @@ final class JinguGen {
         $JinguGen->name('operator_block_name')->stringTable('syntaxname_string', [
             'block',
         ]);
-        $JinguGen->name('operator_block_unit')->seq([ 'operator_block_indent_check', 'operator_block_name', 'syntaxname_separator', 'str_quoted', 'operator_block_separator', 'php_paren_wrap', 'syntax_end_token_to_strip_must', 'syntax_child_repeat' ])->trans([ '
+        $JinguGen->name('operator_block_unit')->seq([ 'operator_block_indent_check', 'operator_block_name', 'syntaxname_separator', 'str_quoted', 'operator_block_separator', 'php_paren_wrap', 'syntax_end_token_to_strip_need', 'syntax_child_repeat' ])->trans([ '
             $v = \'<? }, \' . $v[3] . \' => function \' . $v[5] . \' { ?>\' . $v[6] . $v[7];
         ' ]);
 
@@ -735,14 +735,14 @@ final class JinguGen {
         $JinguGen->name('operator_include_name')->stringTable('syntaxname_string', [
             'include',
         ]);
-        $JinguGen->name('operator_include_unit')->seq([ 'operator_include_name', 'syntaxname_separator', 'str_quoted', 'syntaxname_separator', 'str_quoted', 'operator_include_separator', 'php_bracket_wrap', 'syntax_end_token_to_strip_must' ])->trans([ '
+        $JinguGen->name('operator_include_unit')->seq([ 'operator_include_name', 'syntaxname_separator', 'str_quoted', 'syntaxname_separator', 'str_quoted', 'operator_include_separator', 'php_bracket_wrap', 'syntax_end_token_to_strip_need' ])->trans([ '
             $v = \'<? $this->call(\' . $v[2] . \', \' . $v[4] . \', \' . $v[6] . \') ?>\' . $v[7];
         ' ]);
 
         $JinguGen->name('operator_foreach_name')->stringTable('syntaxname_string', [
             'foreach',
         ]);
-        $JinguGen->name('operator_foreach_unit')->seq([ 'operator_foreach_name', 'php_inoperator_repeat', 'syntax_end_token_to_strip_must', 'syntax_child_repeat' ])->trans([ '
+        $JinguGen->name('operator_foreach_unit')->seq([ 'operator_foreach_name', 'php_inoperator_repeat', 'syntax_end_token_to_strip_need', 'syntax_child_repeat' ])->trans([ '
             $v = "<? " . $v[0] . $v[1] . " { ?>" . $v[2] . $v[3] . "<? } ?>";
         ' ]);
 
@@ -755,16 +755,16 @@ final class JinguGen {
         $JinguGen->name('operator_ifelse_name_else')->stringTable('syntaxname_string', [
             'else',
         ]);
-        $JinguGen->name('operator_ifelse_if_unit')->seq([ 'operator_ifelse_name_if', 'php_inoperator_repeat', 'syntax_end_token_to_strip_must', 'syntax_child_repeat' ])->trans([ '
+        $JinguGen->name('operator_ifelse_if_unit')->seq([ 'operator_ifelse_name_if', 'php_inoperator_repeat', 'syntax_end_token_to_strip_need', 'syntax_child_repeat' ])->trans([ '
             $v = "<? " . $v[0] . $v[1] . " { ?>" . $v[2] . $v[3];
         ' ]);
-        $JinguGen->name('operator_ifelse_elseif_unit')->seq([ 'indent_current', 'operator_ifelse_name_elseif', 'php_inoperator_repeat', 'syntax_end_token_to_strip_must', 'syntax_child_repeat' ])->trans([ '
+        $JinguGen->name('operator_ifelse_elseif_unit')->seq([ 'indent_current', 'operator_ifelse_name_elseif', 'php_inoperator_repeat', 'syntax_end_token_to_strip_need', 'syntax_child_repeat' ])->trans([ '
             $v = "<? } " . $v[1] . $v[2] . " { ?>" . $v[3] . $v[4];
         ' ]);
         $JinguGen->name('operator_ifelse_elseif_repeat')->repeat('operator_ifelse_elseif_unit', 0)->trans([ '
             $v = implode("", $v);
         '] );
-        $JinguGen->name('operator_ifelse_else_unit')->seq([ 'indent_current', 'operator_ifelse_name_else', 'syntax_end_token_to_strip_must', 'syntax_child_repeat' ])->trans([ '
+        $JinguGen->name('operator_ifelse_else_unit')->seq([ 'indent_current', 'operator_ifelse_name_else', 'syntax_end_token_to_strip_need', 'syntax_child_repeat' ])->trans([ '
             $v = "<? } " . $v[1] . " { ?>" . $v[2] . $v[3];
         ' ]);
         $JinguGen->name('operator_ifelse_else_optional')->repeat('operator_ifelse_else_unit', 0, 1)->trans([ '
@@ -782,7 +782,7 @@ final class JinguGen {
             $v = implode("", $v);
         ' ]);
 
-        $JinguGen->name('top')->seq([ 'syntax_top_repeat', 'blank_line_repeat_to_strip', 'blank_string', 'end_must' ])->trans([ '
+        $JinguGen->name('top')->seq([ 'syntax_top_repeat', 'blank_line_repeat_to_strip', 'blank_string', 'end_need' ])->trans([ '
             $v = "<? return [ \"\" => function () { ?>" . $v[0] . $v[1] . "<? } ] ?>";
         ' ]);
 
